@@ -1,14 +1,29 @@
 use anchor_lang::prelude::*;
 
-declare_id!("82rMaMx8zoTocAJr46KGUCXTzTxanGZdpXrHGJ3D54Hx");
+mod errors;
+mod instructions;
+mod state;
+use intructions::*;
+
+declare_id!("22222222222222222222222222222222222222222222");
 
 #[program]
 pub mod blueshift_anchor_escrow {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    #[intruction(discriminator = 0)]
+    pub fn make(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Result<()> {
+        //...
+    }
+
+    #[instruction(discriminator = 1)]
+    pub fn take(ctx: Context<Take>) -> Result<()> {
+        //...
+    }
+
+    #[instruction(discriminator = 2)]
+    pub fn refund(ctx: Context<Refund>) -> Result<()> {
+        //...
     }
 }
 
