@@ -1,7 +1,5 @@
 use crate::{errors::EscrowError, state::Escrow};
-
 use anchor_lang::prelude::*;
-
 use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{
@@ -9,6 +7,7 @@ use anchor_spl::{
         TransferChecked,
     },
 };
+
 #[derive(Accounts)]
 pub struct Refund<'info> {
     #[account(mut)]
@@ -25,6 +24,7 @@ pub struct Refund<'info> {
     pub escrow: Account<'info, Escrow>,
 
     ///Token Accounts
+    #[account(mint::token_program = token_program)]
     pub mint_a: InterfaceAccount<'info, Mint>,
 
     #[account(
@@ -40,19 +40,19 @@ pub struct Refund<'info> {
     payer= maker,
     associated_token::mint = mint_a,
     associated_token::authority = maker,
-    associated_token::token_program = token_program
+    associated_token::token_program= token_program
 )]
     pub maker_ata_a: InterfaceAccount<'info, TokenAccount>,
 
     ///Programs
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_pogram: Interface<'info, TokenInterface>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> Refund<'info> {
     fn withdraw_and_close_vault(&mut self) -> Result<()> {
-        /// Create the signer seeds for the vault
+        // Create the signer seeds for the vault
         let signer_seeds: [&[&[u8]]; 1] = [&[
             b"escrow",
             self.maker.to_account_info().key.as_ref(),
@@ -67,7 +67,7 @@ impl<'info> Refund<'info> {
                 self.token_program.to_account_info(),
                 TransferChecked {
                     from: self.vault.to_account_info(),
-                    to: self.taker_ata_a.to_account_info(),
+                    to: self.maker_ata_a.to_account_info(),
                     mint: self.mint_a.to_account_info(),
                     authority: self.escrow.to_account_info(),
                 },

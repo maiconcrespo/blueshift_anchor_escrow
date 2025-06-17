@@ -14,7 +14,7 @@ pub mod blueshift_anchor_escrow {
 
     #[instruction(discriminator = 0)]
     pub fn make(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Result<()> {
-        instructions::make(ctx, seed, receive, amount)
+        instructions::make::handler(ctx, seed, receive, amount)
     }
 
     #[instruction(discriminator = 1)]
@@ -27,6 +27,3 @@ pub mod blueshift_anchor_escrow {
         instructions::refund::handler(ctx)
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
