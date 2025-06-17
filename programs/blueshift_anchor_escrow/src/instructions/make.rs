@@ -1,12 +1,19 @@
-#[instruction(see:u64)]
-pub struct make<'info> {
+use crate::{errors::EscrowError, state::Escrow};
+use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token_interface::{
+    transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked,
+};
+#[derive(Accounts)]
+#[instruction(seed:u64)]
+pub struct Make<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
 
     #[account(
         init,payer=maker,
-        space = Escrow::INIT_SPACE+ Escrow::DISCRIMINATIOR.len(),
-        seeds =[b"escrow", maker.key().as_ref(),seed.to_le_bytes().as_ref],
+        space = Escrow::INIT_SPACE+ Escrow::DISCRIMINATOR.len(),
+        seeds =[b"escrow", maker.key().as_ref(),seed.to_le_bytes().as_ref()],
         bump,
     )]
     pub escrow: Account<'info, Escrow>,
@@ -44,7 +51,7 @@ pub struct make<'info> {
 
 impl<'info> Make<'info> {
     /// Create the escrow
-    fn populate_escrow(&mut self, seed: u64, amount: u64, bump: u8) -> result<()> {
+    fn populate_escrow(&mut self, seed: u64, amount: u64, bump: u8) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
             maker: self.maker.key(),
@@ -78,7 +85,7 @@ impl<'info> Make<'info> {
     pub fn handler(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Result<()> {
         //validate the amount
         require_gte!(receive, 0, EscrowError::InvalidAmount);
-        require_gte!(amount, 0, EscrowError::InvalisAmount);
+        require_gte!(amount, 0, EscrowError::InvalidAmount);
 
         //save the escrow DATA
         ctx.accounts

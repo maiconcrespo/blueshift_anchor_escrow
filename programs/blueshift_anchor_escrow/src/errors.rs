@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum EscrowError {
     #[msg("Invalid amount")]
-    InvalidAmmount,
+    InvalidAmount,
     #[msg("Invalid maker")]
     InvalidMaker,
     #[msg("Invalid mint a")]
